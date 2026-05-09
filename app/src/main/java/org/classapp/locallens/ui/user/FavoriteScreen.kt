@@ -1,4 +1,92 @@
 package org.classapp.locallens.ui.user
 
-class FavoriteScreen {
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import org.classapp.locallens.model.UserStall
+
+@Composable
+fun FavoriteScreen(
+    stalls: List<UserStall>,
+    onBack: () -> Unit,
+    onStallClick: (UserStall) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+
+                Column {
+                    Text("Save Places", style = MaterialTheme.typography.headlineSmall)
+                    Text("${stalls.size} saved restaurants")
+                }
+            }
+        }
+    ) { padding ->
+
+        if (stalls.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No saved places yet")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+            ) {
+                items(stalls) { stall ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { onStallClick(stall) },
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stall.imageEmoji,
+                                style = MaterialTheme.typography.headlineMedium
+                            )
+
+                            Spacer(Modifier.width(12.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(stall.name, style = MaterialTheme.typography.titleMedium)
+                                Text(stall.location)
+                                Text("⭐ ${stall.rating}  |  ${stall.distance}")
+                            }
+
+                            Icon(Icons.Default.Favorite, contentDescription = null)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
