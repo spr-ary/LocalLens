@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import org.classapp.locallens.ui.owner.StoreOwnerApp
+import org.classapp.locallens.ui.LocalLensApp
 import org.classapp.locallens.ui.theme.LocalLensTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LocalLensTheme {
-                StoreOwnerApp()
+                LocalLensApp()
             }
         }
     }

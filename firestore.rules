@@ -1,0 +1,116 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    /*
+      DEV / CLASS PROJECT RULES
+
+      This app currently uses username/password stored in Firestore instead of
+      Firebase Authentication. Firestore Security Rules cannot verify that custom
+      login state, so request.auth is always null.
+
+      These rules are intentionally permissive enough for the current app flow.
+      Do not use this as final production security for a public app. For real
+      production, use Firebase Auth, App Check + backend, or Cloud Functions.
+    */
+
+    function hasOnlyUserFields() {
+      return request.resource.data.keys().hasOnly([
+        'user_id',
+        'username',
+        'username_lower',
+        'name',
+        'phone',
+        'role',
+        'password_salt',
+        'password_hash',
+        'created_at',
+        'updated_at'
+      ]);
+    }
+
+    function validUserRole() {
+      return request.resource.data.role in ['customer', 'stall_owner'];
+    }
+
+    function hasOnlyStallFields() {
+      return request.resource.data.keys().hasOnly([
+        'stall_id',
+        'owner_id',
+        'stall_name',
+        'description',
+        'category',
+        'price_range',
+        'phone',
+        'address',
+        'latitude',
+        'longitude',
+        'opening_hours',
+        'cover_photo_url',
+        'photo_urls',
+        'status',
+        'average_rating',
+        'total_reviews',
+        'total_favorites',
+        'created_at',
+        'updated_at'
+      ]);
+    }
+
+    function validStallStatus() {
+      return request.resource.data.status in ['active', 'inactive'];
+    }
+
+    function hasOnlyMenuFields() {
+      return request.resource.data.keys().hasOnly([
+        'menu_id',
+        'stall_id',
+        'menu_name',
+        'price',
+        'description',
+        'menu_photo_url',
+        'is_available',
+        'created_at',
+        'updated_at'
+      ]);
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if hasOnlyUserFields() && validUserRole();
+      allow delete: if false;
+    }
+
+    match /stalls/{stallId} {
+      allow read: if true;
+      allow create, update: if hasOnlyStallFields() && validStallStatus();
+      allow delete: if false;
+    }
+
+    match /menu_items/{menuId} {
+      allow read: if true;
+      allow create, update: if hasOnlyMenuFields();
+      allow delete: if true;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+        'review_id',
+        'stall_id',
+        'user_id',
+        'user_name',
+        'rating',
+        'comment',
+        'review_photo_url',
+        'created_at'
+      ]);
+      allow update, delete: if false;
+    }
+
+    match /favorites/{favoriteId} {
+      allow read, create, delete: if true;
+      allow update: if false;
+    }
+  }
+}

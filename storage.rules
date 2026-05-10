@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    /*
+      DEV / CLASS PROJECT RULES
+
+      The current app does not use Firebase Authentication. These rules allow
+      image upload for the app's expected folders with size/type limits only.
+      Do not use as final production security for a public app.
+    */
+
+    function isImage() {
+      return request.resource != null
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    match /stall_photos/{ownerId}/{stallId}/{fileName} {
+      allow read: if true;
+      allow write: if isImage();
+    }
+
+    match /review_photos/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isImage();
+    }
+  }
+}
