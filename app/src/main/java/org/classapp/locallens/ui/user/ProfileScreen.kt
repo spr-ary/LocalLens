@@ -19,7 +19,8 @@ fun ProfileScreen(
     savedCount: Int,
     onHomeClick: () -> Unit,
     onMapClick: () -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Scaffold(
         bottomBar = {
@@ -68,6 +69,13 @@ fun ProfileScreen(
             ProfileOption("📍 Current city", "Bangkok, Thailand")
             ProfileOption("🌐 Language", "English / Thai")
             ProfileOption("ℹ️ About LocalLens", "Discover local street food near you")
+
+            Button(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Logout")
+            }
         }
     }
 }

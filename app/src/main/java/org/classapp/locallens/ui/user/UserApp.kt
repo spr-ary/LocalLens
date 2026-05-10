@@ -5,8 +5,9 @@ import org.classapp.locallens.data.UserFakeData
 import org.classapp.locallens.model.UserStall
 
 @Composable
-fun UserApp() {
-    var screen by remember { mutableStateOf("home") }
+fun UserApp(
+    onLogout: () -> Unit
+){  var screen by remember { mutableStateOf("home") }
     var selectedStall by remember { mutableStateOf<UserStall?>(null) }
     val favorites = remember { mutableStateListOf<String>() }
 
@@ -60,9 +61,10 @@ fun UserApp() {
 
         "profile" -> ProfileScreen(
             savedCount = favorites.size,
-            onHomeClick = { goHome() },
+            onHomeClick = { screen = "home" },
             onMapClick = { screen = "map" },
-            onFavoriteClick = { screen = "favorite" }
+            onFavoriteClick = { screen = "favorite" },
+            onLogout = onLogout
         )
     }
 }

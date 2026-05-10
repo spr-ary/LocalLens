@@ -13,6 +13,7 @@ import org.classapp.locallens.model.UserRole
 import org.classapp.locallens.ui.auth.AuthScreen
 import org.classapp.locallens.ui.customer.CustomerHomeScreen
 import org.classapp.locallens.ui.owner.StoreOwnerApp
+import org.classapp.locallens.ui.user.UserApp
 
 @Composable
 fun LocalLensApp() {
@@ -55,8 +56,7 @@ fun LocalLensApp() {
                 onLogout = { currentUser = null }
             )
 
-            UserRole.Customer -> CustomerHomeScreen(
-                user = user,
+            UserRole.Customer -> UserApp(
                 onLogout = { currentUser = null }
             )
         }
