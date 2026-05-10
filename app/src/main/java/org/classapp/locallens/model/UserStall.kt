@@ -11,6 +11,8 @@ data class UserStall(
     val reviewCount: Int,
     val distance: String,
     val imageEmoji: String,
-    val menu: List<MenuItem>
+    val menu: List<MenuItem>,
+    val latitude: Double,
+    val longitude: Double,
 )
 

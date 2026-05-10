@@ -38,7 +38,15 @@ fun UserApp() {
 
         "favorite" -> FavoriteScreen(
             stalls = UserFakeData.stalls.filter { favorites.contains(it.id) },
-            onBack = { screen = "home" },
+            onHomeClick = { screen = "home" },
+            onMapClick = { screen = "map" },
+            onStallClick = { openDetail(it) }
+        )
+
+        "map" -> MapScreen(
+            stalls = UserFakeData.stalls,
+            onHomeClick = { screen = "home" },
+            onFavoriteClick = { screen = "favorite" },
             onStallClick = { openDetail(it) }
         )
 

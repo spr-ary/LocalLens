@@ -19,7 +19,9 @@ object UserFakeData {
             menu = listOf(
                 MenuItem("Pad Thai", "50 THB"),
                 MenuItem("Shrimp Pad Thai", "70 THB")
-            )
+            ),
+            latitude = 13.799,
+            longitude = 100.551,
         ),
         UserStall(
             id = "2",
@@ -35,7 +37,9 @@ object UserFakeData {
             menu = listOf(
                 MenuItem("Mango Sticky Rice", "60 THB"),
                 MenuItem("Coconut Ice Cream", "45 THB")
-            )
+            ),
+            latitude = 13.799,
+            longitude = 100.551,
         ),
         UserStall(
             id = "3",
@@ -51,7 +55,9 @@ object UserFakeData {
             menu = listOf(
                 MenuItem("Boat Noodles", "25 THB"),
                 MenuItem("Pork Noodles", "35 THB")
-            )
+            ) ,
+            latitude = 13.799,
+            longitude = 100.551,
         )
     )
 }
