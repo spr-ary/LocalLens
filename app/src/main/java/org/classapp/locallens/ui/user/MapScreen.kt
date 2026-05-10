@@ -1,9 +1,14 @@
 package org.classapp.locallens.ui.user
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -15,6 +20,7 @@ fun MapScreen(
     stalls: List<UserStall>,
     onHomeClick: () -> Unit,
     onFavoriteClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onStallClick: (UserStall) -> Unit
 ) {
     val bangkok = LatLng(13.7563, 100.5018)
@@ -25,15 +31,15 @@ fun MapScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(false, onHomeClick, icon = { Text("🏠") }, label = { Text("Home") })
-                NavigationBarItem(true, {}, icon = { Text("📍") }, label = { Text("Map") })
-                NavigationBarItem(false, onFavoriteClick, icon = { Text("❤️") }, label = { Text("Save") })
-                NavigationBarItem(false, {}, icon = { Text("👤") }, label = { Text("Profile") })
-            }
+            UserBottomBar(
+                selectedTab = UserTab.MAP,
+                onHomeClick = onHomeClick,
+                onMapClick = {},
+                onSaveClick = onFavoriteClick,
+                onProfileClick = onProfileClick
+            )
         }
     ) { padding ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -45,9 +51,7 @@ fun MapScreen(
             ) {
                 stalls.forEach { stall ->
                     Marker(
-                        state = MarkerState(
-                            position = LatLng(stall.latitude, stall.longitude)
-                        ),
+                        state = MarkerState(LatLng(stall.latitude, stall.longitude)),
                         title = stall.name,
                         snippet = stall.location,
                         onClick = {
@@ -55,6 +59,44 @@ fun MapScreen(
                             true
                         }
                     )
+                }
+            }
+
+            stalls.firstOrNull()?.let { stall ->
+                Card(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(18.dp)
+                        .fillMaxWidth()
+                        .clickable { onStallClick(stall) },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(62.dp)
+                                .background(Color(0xFFE4DAFF), RoundedCornerShape(14.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(stall.imageEmoji, style = MaterialTheme.typography.headlineMedium)
+                        }
+
+                        Spacer(Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(stall.name, style = MaterialTheme.typography.titleMedium)
+                            Text(stall.category, color = Color.Gray)
+                            Text("⭐ ${stall.rating}  •  ${stall.distance}")
+                        }
+
+                        Button(onClick = { onStallClick(stall) }) {
+                            Text("View")
+                        }
+                    }
                 }
             }
         }

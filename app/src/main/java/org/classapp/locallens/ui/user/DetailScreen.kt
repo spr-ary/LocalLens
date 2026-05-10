@@ -14,9 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.classapp.locallens.model.UserStall
-import androidx.compose.foundation.layout.statusBarsPadding
+
+private val PurpleBg = Color(0xFFF3EEFF)
+private val PurpleMain = Color(0xFF2F247F)
 
 @Composable
 fun DetailScreen(
@@ -25,100 +28,114 @@ fun DetailScreen(
     onBack: () -> Unit,
     onFavoriteToggle: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F2FF))
-            .verticalScroll(rememberScrollState())
+            .background(PurpleBg)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-                .background(Color(0xFFE6D9FF)),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = stall.imageEmoji,
-                style = MaterialTheme.typography.displayLarge
-            )
-
-            IconButton(
-                onClick = onBack,
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(start = 8.dp, top = 8.dp)
+                    .fillMaxWidth()
+                    .height(260.dp)
+                    .background(Color(0xFFE2D8FF)),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
-        }
+                Text(stall.imageEmoji, style = MaterialTheme.typography.displayLarge)
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = (-28).dp)
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text(stall.name, style = MaterialTheme.typography.headlineSmall)
-                Text("⭐ ${stall.rating}  (${stall.reviewCount} reviews)")
-
-                Spacer(Modifier.height(12.dp))
-
-                Text("📍 ${stall.location}")
-                Text("🕒 ${stall.openTime}")
-                Text("💰 ${stall.priceRange}")
-
-                Spacer(Modifier.height(16.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = { }) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Directions")
-                    }
-
-                    OutlinedButton(onClick = onFavoriteToggle) {
-                        Icon(Icons.Default.Favorite, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text(if (isFavorite) "Saved" else "Save")
-                    }
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .statusBarsPadding()
+                        .padding(8.dp)
+                ) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
+            }
 
-                Spacer(Modifier.height(20.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-34).dp)
+                    .padding(horizontal = 18.dp),
+                shape = RoundedCornerShape(26.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(stall.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    Text("⭐ ${stall.rating}  (${stall.reviewCount} reviews)")
 
-                Text("Menu", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(14.dp))
 
-                stall.menu.forEach { item ->
-                    Row(
+                    Text("📍 ${stall.location}")
+                    Text("🕒 ${stall.openTime}")
+                    Text("💰 ${stall.priceRange}")
+
+                    Spacer(Modifier.height(18.dp))
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(containerColor = PurpleMain),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Directions")
+                        }
+
+                        OutlinedButton(
+                            onClick = onFavoriteToggle,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = if (isFavorite) Color.Red else PurpleMain
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(if (isFavorite) "Saved" else "Save")
+                        }
+                    }
+
+                    Spacer(Modifier.height(22.dp))
+
+                    Text("Menu", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+
+                    stall.menu.forEach { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(item.name)
+                            Text(item.price)
+                        }
+                        HorizontalDivider()
+                    }
+
+                    Spacer(Modifier.height(20.dp))
+
+                    Text("Reviews", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(top = 10.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF3ECFF))
                     ) {
-                        Text(item.name)
-                        Text(item.price)
-                    }
-                    Divider()
-                }
-
-                Spacer(Modifier.height(20.dp))
-
-                Text("Reviews", style = MaterialTheme.typography.titleLarge)
-
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF3ECFF))
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Lisa M.", style = MaterialTheme.typography.titleSmall)
-                        Text("Best pad thai near BTS! ❤️")
-                        Text("⭐⭐⭐⭐⭐")
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text("Lisa M.", fontWeight = FontWeight.Bold)
+                            Text("Best pad thai near BTS! ❤️")
+                            Text("⭐⭐⭐⭐⭐")
+                        }
                     }
                 }
             }

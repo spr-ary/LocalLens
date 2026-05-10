@@ -15,20 +15,26 @@ fun UserApp() {
         screen = "detail"
     }
 
+    fun goHome() {
+        selectedStall = null
+        screen = "home"
+    }
+
     when (screen) {
         "home" -> HomeScreen(
             stalls = UserFakeData.stalls,
             favorites = favorites,
             onStallClick = { openDetail(it) },
             onMapClick = { screen = "map" },
-            onFavoriteClick = { screen = "favorite" }
+            onFavoriteClick = { screen = "favorite" },
+            onProfileClick = { screen = "profile" }
         )
 
         "detail" -> selectedStall?.let { stall ->
             DetailScreen(
                 stall = stall,
                 isFavorite = favorites.contains(stall.id),
-                onBack = { screen = "home" },
+                onBack = { goHome() },
                 onFavoriteToggle = {
                     if (favorites.contains(stall.id)) favorites.remove(stall.id)
                     else favorites.add(stall.id)
@@ -36,26 +42,27 @@ fun UserApp() {
             )
         }
 
-        "favorite" -> FavoriteScreen(
-            stalls = UserFakeData.stalls.filter { favorites.contains(it.id) },
-            onHomeClick = { screen = "home" },
-            onMapClick = { screen = "map" },
-            onStallClick = { openDetail(it) }
-        )
-
         "map" -> MapScreen(
             stalls = UserFakeData.stalls,
-            onHomeClick = { screen = "home" },
+            onHomeClick = { goHome() },
             onFavoriteClick = { screen = "favorite" },
+            onProfileClick = { screen = "profile" },
             onStallClick = { openDetail(it) }
         )
 
-        else -> HomeScreen(
-            stalls = UserFakeData.stalls,
-            favorites = favorites,
-            onStallClick = { openDetail(it) },
-            onMapClick = { screen = "home" },
-            onFavoriteClick = { screen = "home" }
+        "favorite" -> FavoriteScreen(
+            stalls = UserFakeData.stalls.filter { favorites.contains(it.id) },
+            onHomeClick = { goHome() },
+            onMapClick = { screen = "map" },
+            onProfileClick = { screen = "profile" },
+            onStallClick = { openDetail(it) }
+        )
+
+        "profile" -> ProfileScreen(
+            savedCount = favorites.size,
+            onHomeClick = { goHome() },
+            onMapClick = { screen = "map" },
+            onFavoriteClick = { screen = "favorite" }
         )
     }
 }
