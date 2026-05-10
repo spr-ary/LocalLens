@@ -31,12 +31,14 @@ import org.classapp.locallens.ui.owner.components.SectionTitle
 
 @Composable
 fun OwnerProfileScreen(
+    ownerUsername: String,
+    onOwnerUsernameChange: (String) -> Unit,
     ownerName: String,
     onOwnerNameChange: (String) -> Unit,
-    ownerEmail: String,
-    onOwnerEmailChange: (String) -> Unit,
     ownerPhone: String,
-    onOwnerPhoneChange: (String) -> Unit
+    onOwnerPhoneChange: (String) -> Unit,
+    onSaveProfile: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -66,7 +68,7 @@ fun OwnerProfileScreen(
                 }
                 Text(ownerName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("stall_owner", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                InfoLine("Email", ownerEmail)
+                InfoLine("Username", ownerUsername)
                 InfoLine("Phone", ownerPhone)
             }
         }
@@ -74,10 +76,10 @@ fun OwnerProfileScreen(
         Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Edit Profile", fontWeight = FontWeight.Bold)
+                OwnerTextField("Username", ownerUsername, onOwnerUsernameChange)
                 OwnerTextField("Owner name", ownerName, onOwnerNameChange)
-                OwnerTextField("Email", ownerEmail, onOwnerEmailChange, KeyboardType.Email)
                 OwnerTextField("Phone number", ownerPhone, onOwnerPhoneChange, KeyboardType.Phone)
-                Button(onClick = { }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                Button(onClick = onSaveProfile, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
                     Text("Save Profile")
                 }
             }
@@ -85,7 +87,7 @@ fun OwnerProfileScreen(
 
         ManagementButton("Change Password", "Update account security", {})
         ManagementButton("Help / Contact Support", "Get help with your stall owner account", {})
-        OutlinedButton(onClick = { }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+        OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
             Text("Logout")
         }
     }

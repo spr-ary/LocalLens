@@ -1,5 +1,8 @@
 package org.classapp.locallens.ui.owner.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,6 +64,11 @@ fun MyStallScreen(
     onSelectStall: (String) -> Unit,
     onStallChange: (StallProfile) -> Unit,
     menuItems: MutableList<MenuItem>,
+    onAddMenuItem: (MenuItem) -> Unit,
+    onToggleMenuItem: (MenuItem) -> Unit,
+    onRemoveMenuItem: (MenuItem) -> Unit,
+    onUploadCoverPhoto: (Uri) -> Unit,
+    onUploadAdditionalPhoto: (Uri) -> Unit,
     onDisableStall: () -> Unit
 ) {
     val stall = stalls.firstOrNull { it.id == selectedStallId }
@@ -110,6 +118,10 @@ fun MyStallScreen(
 
         MyStallMode.Menu -> MenuManagement(
             menuItems = menuItems,
+            stallId = selectedStallId,
+            onAddMenuItem = onAddMenuItem,
+            onToggleMenuItem = onToggleMenuItem,
+            onRemoveMenuItem = onRemoveMenuItem,
             onBack = { onModeChange(MyStallMode.Overview) }
         )
 
@@ -122,7 +134,12 @@ fun MyStallScreen(
             }
         )
 
-        MyStallMode.Photos -> PhotosManagement(onBack = { onModeChange(MyStallMode.Overview) })
+        MyStallMode.Photos -> PhotosManagement(
+            stall = stall,
+            onUploadCoverPhoto = onUploadCoverPhoto,
+            onUploadAdditionalPhoto = onUploadAdditionalPhoto,
+            onBack = { onModeChange(MyStallMode.Overview) }
+        )
 
         MyStallMode.Preview -> CustomerPreview(
             stall = stall,
@@ -316,7 +333,14 @@ private fun AddOrEditStallForm(
 }
 
 @Composable
-private fun MenuManagement(menuItems: MutableList<MenuItem>, onBack: () -> Unit) {
+private fun MenuManagement(
+    menuItems: List<MenuItem>,
+    stallId: String,
+    onAddMenuItem: (MenuItem) -> Unit,
+    onToggleMenuItem: (MenuItem) -> Unit,
+    onRemoveMenuItem: (MenuItem) -> Unit,
+    onBack: () -> Unit
+) {
     var name by rememberSaveable { mutableStateOf("") }
     var price by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
@@ -339,7 +363,14 @@ private fun MenuManagement(menuItems: MutableList<MenuItem>, onBack: () -> Unit)
                     Button(
                         onClick = {
                             if (name.isNotBlank() && price.isNotBlank()) {
-                                menuItems.add(MenuItem(name.trim(), price.trim(), description.trim()))
+                                onAddMenuItem(
+                                    MenuItem(
+                                        name = name.trim(),
+                                        price = price.trim(),
+                                        description = description.trim(),
+                                        stallId = stallId
+                                    )
+                                )
                                 name = ""
                                 price = ""
                                 description = ""
@@ -356,11 +387,8 @@ private fun MenuManagement(menuItems: MutableList<MenuItem>, onBack: () -> Unit)
         items(menuItems, key = { it.name + it.price }) { item ->
             MenuItemCard(
                 item = item,
-                onToggle = {
-                    val index = menuItems.indexOf(item)
-                    if (index >= 0) menuItems[index] = item.copy(available = !item.available)
-                },
-                onRemove = { menuItems.remove(item) }
+                onToggle = { onToggleMenuItem(item) },
+                onRemove = { onRemoveMenuItem(item) }
             )
         }
     }
@@ -402,7 +430,19 @@ private fun HoursManagement(stall: StallProfile?, onBack: () -> Unit, onSave: (S
 }
 
 @Composable
-private fun PhotosManagement(onBack: () -> Unit) {
+private fun PhotosManagement(
+    stall: StallProfile?,
+    onUploadCoverPhoto: (Uri) -> Unit,
+    onUploadAdditionalPhoto: (Uri) -> Unit,
+    onBack: () -> Unit
+) {
+    val coverPhotoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) onUploadCoverPhoto(uri)
+    }
+    val additionalPhotoPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) onUploadAdditionalPhoto(uri)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -411,9 +451,34 @@ private fun PhotosManagement(onBack: () -> Unit) {
     ) {
         HeaderWithBack(title = "Manage Photos", onBack = onBack)
         PhotoStrip()
-        ManagementButton("Upload Cover Photo", "Shown on customer cards and dashboard", {})
-        ManagementButton("Upload Additional Photos", "Add menu, storefront, and seating photos", {})
-        ManagementButton("Set Cover Photo", "Choose the image customers see first", {})
+        ManagementButton("Upload Cover Photo", "Shown on customer cards and dashboard", {
+            coverPhotoPicker.launch("image/*")
+        })
+        ManagementButton("Upload Additional Photos", "Add menu, storefront, and seating photos", {
+            additionalPhotoPicker.launch("image/*")
+        })
+        PhotoStatus(stall = stall)
+    }
+}
+
+@Composable
+private fun PhotoStatus(stall: StallProfile?) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Uploaded Photos", fontWeight = FontWeight.Bold)
+            Text(
+                text = if (stall?.coverPhotoUrl.isNullOrBlank()) {
+                    "Cover photo: not uploaded"
+                } else {
+                    "Cover photo: uploaded"
+                },
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Additional photos: ${stall?.photoUrls?.size ?: 0}",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -472,6 +537,10 @@ private fun StallProfileCard(stall: StallProfile) {
                 StatusPill(isOpen = stall.isActive)
             }
             Text("Rating ${stall.averageRating} (${stall.totalReviews} reviews)", color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = if (stall.coverPhotoUrl.isBlank()) "No cover photo uploaded" else "Cover photo uploaded",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             InfoLine("Location", stall.address)
             InfoLine("Opening Hours", stall.openingHours)
             InfoLine("Price Range", stall.priceRange)

@@ -43,7 +43,11 @@ fun StallSummaryCard(stall: StallProfile) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Cover Photo", color = Color(0xFF2B246D), fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (stall.coverPhotoUrl.isBlank()) "Cover Photo" else "Cover Photo Uploaded",
+                    color = Color(0xFF2B246D),
+                    fontWeight = FontWeight.Bold
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
