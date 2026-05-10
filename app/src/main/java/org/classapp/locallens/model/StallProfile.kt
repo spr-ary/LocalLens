@@ -15,7 +15,9 @@ data class StallProfile(
     val status: String,
     val averageRating: Double,
     val totalReviews: Int,
-    val totalFavorites: Int
+    val totalFavorites: Int,
+    val coverPhotoUrl: String = "",
+    val photoUrls: List<String> = emptyList()
 ) {
     val isActive: Boolean
         get() = status == "active"
