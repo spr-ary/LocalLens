@@ -16,6 +16,7 @@ import org.classapp.locallens.model.StallProfile
 import org.classapp.locallens.model.UserRole
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import org.classapp.locallens.model.UserStall
 
 object FirestoreRepository {
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
@@ -280,6 +281,37 @@ object FirestoreRepository {
                     createdAt = "Recently"
                 )
             }
+    }
+
+    suspend fun loadCustomerStalls(): List<UserStall> {
+        val stallDocuments = db.collection("stalls")
+            .whereEqualTo("status", "active")
+            .get()
+            .await()
+            .documents
+
+        return stallDocuments.map { document ->
+            val stallId = document.getString("stall_id") ?: document.id
+            val menuItems = loadMenuItems(stallId)
+
+            UserStall(
+                id = stallId,
+                name = document.getString("stall_name").orEmpty(),
+                category = document.getString("category").orEmpty(),
+                location = document.getString("address").orEmpty(),
+                openTime = document.getString("opening_hours").orEmpty(),
+                priceRange = document.getString("price_range").orEmpty(),
+                rating = document.getDouble("average_rating") ?: 0.0,
+                reviewCount = document.getLong("total_reviews")?.toInt() ?: 0,
+                distance = "Nearby",
+                imageEmoji = "🍽️",
+                menu = menuItems,
+                latitude = document.getDouble("latitude") ?: 13.7563,
+                longitude = document.getDouble("longitude") ?: 100.5018,
+                reviewAuthor = "Customer",
+                reviewText = "Recommended local food stall!"
+            )
+        }
     }
 }
 
