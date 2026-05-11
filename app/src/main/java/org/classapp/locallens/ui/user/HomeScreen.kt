@@ -24,12 +24,14 @@ private val PurpleCard = Color(0xFFE7DFF5)
 
 @Composable
 fun HomeScreen(
+    userName: String,
     stalls: List<UserStall>,
     favorites: List<String>,
     onStallClick: (UserStall) -> Unit,
     onMapClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onSeeAllClick: () -> Unit,
 ) {
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("All") }
@@ -75,7 +77,7 @@ fun HomeScreen(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFE4DAFF))
                 ) {
                     Column(modifier = Modifier.padding(18.dp)) {
-                        Text("Hello, User", fontWeight = FontWeight.Bold)
+                        Text("Hello, $userName")
                         Text(
                             "📍 Discover Local Street Food Near You",
                             style = MaterialTheme.typography.bodySmall
@@ -152,12 +154,18 @@ fun HomeScreen(
                             "Clear",
                             color = PurpleMain,
                             modifier = Modifier.clickable {
+                                onSeeAllClick()
+                            }
+                        )
+                    } else {
+                        Text(
+                            "See all ›",
+                            color = PurpleMain,
+                            modifier = Modifier.clickable {
                                 searchText = ""
                                 selectedCategory = "All"
                             }
                         )
-                    } else {
-                        Text("See all ›", color = PurpleMain)
                     }
                 }
             }

@@ -14,5 +14,7 @@ data class UserStall(
     val menu: List<MenuItem>,
     val latitude: Double,
     val longitude: Double,
+    val reviewAuthor: String = "Local User",
+    val reviewText: String = "Recommended street food spot!"
 )
 

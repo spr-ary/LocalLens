@@ -6,6 +6,7 @@ import org.classapp.locallens.model.UserStall
 
 @Composable
 fun UserApp(
+    userName: String = "User",
     onLogout: () -> Unit
 ){  var screen by remember { mutableStateOf("home") }
     var selectedStall by remember { mutableStateOf<UserStall?>(null) }
@@ -23,12 +24,16 @@ fun UserApp(
 
     when (screen) {
         "home" -> HomeScreen(
+            userName = userName,
             stalls = UserFakeData.stalls,
             favorites = favorites,
             onStallClick = { openDetail(it) },
             onMapClick = { screen = "map" },
             onFavoriteClick = { screen = "favorite" },
-            onProfileClick = { screen = "profile" }
+            onProfileClick = { screen = "profile" },
+            onSeeAllClick = {
+                screen = "map"
+            },
         )
 
         "detail" -> selectedStall?.let { stall ->
@@ -39,7 +44,10 @@ fun UserApp(
                 onFavoriteToggle = {
                     if (favorites.contains(stall.id)) favorites.remove(stall.id)
                     else favorites.add(stall.id)
-                }
+                },
+                onDirectionsClick = {
+                    screen = "map"
+                },
             )
         }
 
@@ -60,6 +68,7 @@ fun UserApp(
         )
 
         "profile" -> ProfileScreen(
+            userName = userName,
             savedCount = favorites.size,
             onHomeClick = { screen = "home" },
             onMapClick = { screen = "map" },

@@ -57,6 +57,7 @@ fun LocalLensApp() {
             )
 
             UserRole.Customer -> UserApp(
+                userName = user.name,
                 onLogout = { currentUser = null }
             )
         }

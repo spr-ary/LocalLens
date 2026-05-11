@@ -26,7 +26,8 @@ fun DetailScreen(
     stall: UserStall,
     isFavorite: Boolean,
     onBack: () -> Unit,
-    onFavoriteToggle: () -> Unit
+    onFavoriteToggle: () -> Unit,
+    onDirectionsClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -80,7 +81,7 @@ fun DetailScreen(
 
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Button(
-                            onClick = {},
+                            onClick = onDirectionsClick,
                             colors = ButtonDefaults.buttonColors(containerColor = PurpleMain),
                             shape = RoundedCornerShape(12.dp)
                         ) {
@@ -132,8 +133,8 @@ fun DetailScreen(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF3ECFF))
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
-                            Text("Lisa M.", fontWeight = FontWeight.Bold)
-                            Text("Best pad thai near BTS! ❤️")
+                            Text(stall.reviewAuthor, fontWeight = FontWeight.Bold)
+                            Text(stall.reviewText)
                             Text("⭐⭐⭐⭐⭐")
                         }
                     }

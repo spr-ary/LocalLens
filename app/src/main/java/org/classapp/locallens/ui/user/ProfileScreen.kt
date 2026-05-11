@@ -16,6 +16,7 @@ private val PurpleBg = Color(0xFFF3EEFF)
 
 @Composable
 fun ProfileScreen(
+    userName: String,
     savedCount: Int,
     onHomeClick: () -> Unit,
     onMapClick: () -> Unit,
@@ -52,7 +53,7 @@ fun ProfileScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            Text("Guest User", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(userName)
             Text("Food explorer in Bangkok", color = Color.Gray)
 
             Spacer(Modifier.height(24.dp))
