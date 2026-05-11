@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +31,23 @@ fun HomeScreen(
     onFavoriteClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
+    var searchText by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("All") }
+
+    val categories = listOf("All", "Noodles", "Rice", "Dessert", "Drinks", "Healthy", "BBQ")
+
+    val filteredStalls = stalls.filter { stall ->
+        val matchSearch =
+            stall.name.contains(searchText, ignoreCase = true) ||
+                    stall.category.contains(searchText, ignoreCase = true) ||
+                    stall.location.contains(searchText, ignoreCase = true)
+
+        val matchCategory =
+            selectedCategory == "All" || stall.category.equals(selectedCategory, ignoreCase = true)
+
+        matchSearch && matchCategory
+    }
+
     Scaffold(
         bottomBar = {
             UserBottomBar(
@@ -43,6 +60,7 @@ fun HomeScreen(
         },
         containerColor = PurpleBg
     ) { padding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -58,13 +76,16 @@ fun HomeScreen(
                 ) {
                     Column(modifier = Modifier.padding(18.dp)) {
                         Text("Hello, User", fontWeight = FontWeight.Bold)
-                        Text("📍 Discover Local Street Food Near You", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            "📍 Discover Local Street Food Near You",
+                            style = MaterialTheme.typography.bodySmall
+                        )
 
                         Spacer(Modifier.height(14.dp))
 
                         OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
+                            value = searchText,
+                            onValueChange = { searchText = it },
                             placeholder = { Text("Search street food...") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
@@ -86,14 +107,27 @@ fun HomeScreen(
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        CategoryBox("🍜", "Noodles", Modifier.weight(1f))
-                        CategoryBox("🍚", "Rice", Modifier.weight(1f))
-                        CategoryBox("🍨", "Dessert", Modifier.weight(1f))
+                        FilterCategoryBox("🍽️", "All", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "All"
+                        }
+                        FilterCategoryBox("🍜", "Noodles", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "Noodles"
+                        }
+                        FilterCategoryBox("🍚", "Rice", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "Rice"
+                        }
                     }
+
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        CategoryBox("🥤", "Drinks", Modifier.weight(1f))
-                        CategoryBox("🥗", "Healthy", Modifier.weight(1f))
-                        CategoryBox("🍢", "BBQ", Modifier.weight(1f))
+                        FilterCategoryBox("🍨", "Dessert", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "Dessert"
+                        }
+                        FilterCategoryBox("🥤", "Drinks", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "Drinks"
+                        }
+                        FilterCategoryBox("🍢", "BBQ", selectedCategory, Modifier.weight(1f)) {
+                            selectedCategory = "BBQ"
+                        }
                     }
                 }
             }
@@ -104,32 +138,72 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        "Popular Nearby",
+                        if (searchText.isBlank() && selectedCategory == "All")
+                            "Popular Nearby"
+                        else
+                            "${filteredStalls.size} result(s)",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = PurpleMain
                     )
-                    Text("See all ›", color = PurpleMain)
+
+                    if (searchText.isNotBlank() || selectedCategory != "All") {
+                        Text(
+                            "Clear",
+                            color = PurpleMain,
+                            modifier = Modifier.clickable {
+                                searchText = ""
+                                selectedCategory = "All"
+                            }
+                        )
+                    } else {
+                        Text("See all ›", color = PurpleMain)
+                    }
                 }
             }
 
-            items(stalls) { stall ->
-                StallCard(
-                    stall = stall,
-                    isFavorite = favorites.contains(stall.id),
-                    onClick = { onStallClick(stall) }
-                )
+            if (filteredStalls.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No street food found 😭")
+                    }
+                }
+            } else {
+                items(filteredStalls) { stall ->
+                    StallCard(
+                        stall = stall,
+                        isFavorite = favorites.contains(stall.id),
+                        onClick = { onStallClick(stall) }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CategoryBox(icon: String, title: String, modifier: Modifier = Modifier) {
+private fun FilterCategoryBox(
+    icon: String,
+    title: String,
+    selectedCategory: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val selected = selectedCategory == title
+
     Card(
-        modifier = modifier.height(78.dp),
+        modifier = modifier
+            .height(76.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) Color(0xFFD8C8FF) else Color.White
+        )
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -137,7 +211,11 @@ private fun CategoryBox(icon: String, title: String, modifier: Modifier = Modifi
             verticalArrangement = Arrangement.Center
         ) {
             Text(icon, style = MaterialTheme.typography.titleLarge)
-            Text(title, style = MaterialTheme.typography.bodySmall)
+            Text(
+                title,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+            )
         }
     }
 }
